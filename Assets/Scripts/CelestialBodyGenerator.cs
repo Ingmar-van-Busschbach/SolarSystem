@@ -4,39 +4,55 @@ using UnityEngine;
 
 public class CelestialBodyGenerator : MonoBehaviour
 {
+    [Header("Core settings")]
     public ComputeShader heightMapCompute;
-    public bool logTimers;
+    [Tooltip("Simplex noise seed")]
     public int seed;
+    [Tooltip("The vertex count per axis of a face. There are 6 faces and 2 axis per face. As such, the total vertex count after triangulation is [12*resolution^2]")]
     [SerializeField] private int resolution = 10;
-    [SerializeField] private MeshFilter terrainMeshFilter;
-    [SerializeField] private Material material;
-    private Mesh mesh;
-    private ComputeBuffer vertexBuffer;
-    private Vector2 heightMinMax;
-    private ComputeBuffer heightBuffer;
-    static Dictionary<int, SphereMesh> sphereGenerators;
+    [Tooltip("Whether to log generation time")]
+    public bool logTimers;
+    
+    
 
     [Header("Continent settings")]
     public float oceanDepthMultiplier = 5;
     public float oceanFloorDepth = 1.5f;
     public float oceanFloorSmoothing = 0.5f;
-
     public float mountainBlend = 1.2f; // Determines how smoothly the base of mountains blends into the terrain
 
     [Header("Noise settings")]
     public SimpleNoiseSettings continentNoise;
     public SimpleNoiseSettings maskNoise;
     public RidgeNoiseSettings ridgeNoise;
-    public Vector4 testParams;
 
-    // Start is called before the first frame update
+    [Header("Shader settings")]
+    public ShaderSettings shaderSettings;
+
+    private MeshFilter terrainMeshFilter;
+    private MeshRenderer terrainRenderer;
+    private Material terrainMatInstance;
+    private Mesh mesh;
+    private ComputeBuffer vertexBuffer;
+    private Vector2 heightMinMax;
+    private ComputeBuffer heightBuffer;
+    static Dictionary<int, SphereMesh> sphereGenerators;
+
     void Start()
     {
+        terrainMeshFilter = this.GetComponent<MeshFilter>();
+        terrainRenderer = this.GetComponent<MeshRenderer>();
         var terrainMeshTimer = System.Diagnostics.Stopwatch.StartNew();
         heightMinMax = GenerateTerrainMesh(ref mesh, resolution);
 
         LogTimer(terrainMeshTimer, "Generate terrain mesh");
+        terrainMatInstance = new Material(shaderSettings.terrainMaterial);
+        shaderSettings.SetTerrainProperties(terrainMatInstance, heightMinMax, BodyScale);
         terrainMeshFilter.mesh = mesh;
+        terrainRenderer.sharedMaterial = terrainMatInstance;
+        ComputeHelper.Release(vertexBuffer);
+        ComputeHelper.Release(heightBuffer);
+        shaderSettings.ReleaseBuffers();
     }
     protected virtual void SetShapeData()
     {
@@ -49,7 +65,6 @@ public class CelestialBodyGenerator : MonoBehaviour
         heightMapCompute.SetFloat("oceanFloorDepth", oceanFloorDepth);
         heightMapCompute.SetFloat("oceanFloorSmoothing", oceanFloorSmoothing);
         heightMapCompute.SetFloat("mountainBlend", mountainBlend);
-        heightMapCompute.SetVector("params", testParams);
     }
 
     (Vector3[] vertices, int[] triangles) CreateSphereVertsAndTris(int resolution)
@@ -138,8 +153,9 @@ public class CelestialBodyGenerator : MonoBehaviour
         mesh.SetTriangles(triangles, 0, true);
         mesh.RecalculateNormals(); //
 
-        material.SetFloat("_HeightMin", minHeight);
-        material.SetFloat("_HeightMax", maxHeight);
+        // Shading noise data
+        Vector4[] shadingData = shaderSettings.GenerateShadingData(vertexBuffer);
+        mesh.SetUVs(0, shadingData);
         // Create crude tangents (vectors perpendicular to surface normal)
         // This is needed (even though normal mapping is being done with triplanar)
         // because surfaceshader wants normals in tangent space
@@ -151,7 +167,15 @@ public class CelestialBodyGenerator : MonoBehaviour
             crudeTangents[i] = new Vector4(-normal.z, 0, normal.x, 1);
         }
         mesh.SetTangents(crudeTangents);
-
         return new Vector2(minHeight, maxHeight);
+    }
+    public float BodyScale
+    {
+        get
+        {
+            // Body radius is determined by the celestial body class,
+            // which sets the local scale of the generator object (this object)
+            return transform.localScale.x;
+        }
     }
 }

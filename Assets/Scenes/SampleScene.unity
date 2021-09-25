@@ -331,43 +331,89 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   heightMapCompute: {fileID: 7200000, guid: b148c6583f899074d847c99c2d480207, type: 3}
-  logTimers: 1
-  seed: 0
+  seed: 5748
   resolution: 100
-  terrainMeshFilter: {fileID: 1479322537}
-  material: {fileID: 2100000, guid: 53ed5a0983e5c9d49a40f05ac9ce336e, type: 2}
-  oceanDepthMultiplier: 5
-  oceanFloorDepth: 2
+  logTimers: 1
+  oceanDepthMultiplier: 2
+  oceanFloorDepth: 35
   oceanFloorSmoothing: 0.5
-  mountainBlend: 1.2
+  mountainBlend: 1.16
   continentNoise:
-    numLayers: 4
+    numLayers: 6
     lacunarity: 2
     persistence: 0.5
     scale: 1
-    elevation: 1
-    verticalShift: 0
+    elevation: 2.64
+    verticalShift: -0.63
     offset: {x: 0, y: 0, z: 0}
   maskNoise:
-    numLayers: 4
-    lacunarity: 2
-    persistence: 0.5
-    scale: 1
+    numLayers: 3
+    lacunarity: 1.66
+    persistence: 0.55
+    scale: 1.09
     elevation: 1
-    verticalShift: 0
+    verticalShift: 0.02
     offset: {x: 0, y: 0, z: 0}
   ridgeNoise:
     numLayers: 5
-    lacunarity: 2
+    lacunarity: 4
     persistence: 0.5
-    scale: 1
-    power: 2
-    elevation: 5
-    gain: 1
-    verticalShift: 0
-    peakSmoothing: 0
+    scale: 1.5
+    power: 2.18
+    elevation: 8.7
+    gain: 0.8
+    verticalShift: 0.09
+    peakSmoothing: 1
     offset: {x: 0, y: 0, z: 0}
-  testParams: {x: 0, y: 0, z: 0, w: 0}
+  shaderSettings:
+    terrainColors:
+      shoreColLow: {r: 0.98039216, g: 1, b: 0.6666667, a: 0}
+      shoreColHigh: {r: 0.9529412, g: 0.90588236, b: 0.38039216, a: 0}
+      flatColLow: {r: 0.7882353, g: 0.85882354, b: 0, a: 0}
+      flatColHigh: {r: 0.19215687, g: 0.4627451, b: 0, a: 0}
+      steepLow: {r: 0.5294118, g: 0.49019608, b: 0.1882353, a: 0}
+      steepHigh: {r: 0.14901961, g: 0.06666667, b: 0, a: 0}
+    fresnelSettings:
+      fresnelCol: {r: 0.5226415, g: 0.8564828, b: 1, a: 0}
+      strengthNear: 1
+      strengthFar: 2
+      power: 2
+    seed: 100
+    shadingDataCompute: {fileID: 7200000, guid: 3f538f3122d6dc1419859fa3fef6a7c4, type: 3}
+    terrainMaterial: {fileID: 2100000, guid: 4596ff2460822484ca1fbaeedd0f8331, type: 2}
+    oceanLevel: 0.552
+    detailWarpNoise:
+      numLayers: 4
+      lacunarity: 2
+      persistence: 0.5
+      scale: 1
+      elevation: 1
+      verticalShift: 0
+      offset: {x: 0, y: 0, z: 0}
+    detailNoise:
+      numLayers: 4
+      lacunarity: 2
+      persistence: 0.5
+      scale: 1
+      elevation: 1
+      verticalShift: 0
+      offset: {x: 0, y: 0, z: 0}
+    largeNoise:
+      numLayers: 4
+      lacunarity: 2
+      persistence: 0.5
+      scale: 1
+      elevation: 1
+      verticalShift: 0
+      offset: {x: 0, y: 0, z: 0}
+    smallNoise:
+      numLayers: 4
+      lacunarity: 2
+      persistence: 0.5
+      scale: 1
+      elevation: 1
+      verticalShift: 0
+      offset: {x: 0, y: 0, z: 0}
 --- !u!4 &1479322536
 Transform:
   m_ObjectHideFlags: 0
@@ -409,7 +455,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 53ed5a0983e5c9d49a40f05ac9ce336e, type: 2}
+  - {fileID: 10302, guid: 0000000000000000f000000000000000, type: 0}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
